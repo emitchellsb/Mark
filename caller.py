@@ -5,6 +5,7 @@ from google.cloud.speech import types
 from google.oauth2 import service_account
 from PyDictionary import PyDictionary
 from gtts import gTTS
+import requests
 import os
 import sys
 import subprocess
@@ -12,6 +13,9 @@ import pyaudio
 import wave
 import string
 import time
+import warnings
+
+warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
 def record():
 	CHUNK = 1024
@@ -133,13 +137,18 @@ def get_response(response):
 		transcript += format(result.alternatives[0].transcript)
 	return transcript
 
+def cleverbot(text):
+	API_KEY = 'CC5sziu110l1338RfLM-CPsPKHg'
+	url = ('http://www.cleverbot.com/getreply?key='+API_KEY+'&input='+text+'&cs=76nxdxIJ02AAA')
+	request = requests.get(url).json()
+	return request['output']
+
 def decide(text):
 	likeness = isLike(['what', 'time'], text)
 	if (likeness >= 8.0):
 		return 'The current time is ' + time.ctime()
-	
-	else: 
-		return 'cleverbot'
+
+	return cleverbot(text)
 
 def tts(output):
 
