@@ -13,6 +13,9 @@ import wave
 import string
 import time
 import requests
+import warnings
+
+warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
 def record():
 	CHUNK = 1024
@@ -279,6 +282,12 @@ def news(text):
 
 	return articles
 
+def cleverbot(text):
+	API_KEY = 'CC5sziu110l1338RfLM-CPsPKHg'
+	url = ('http://www.cleverbot.com/getreply?key='+API_KEY+'&input='+text+'&cs=76nxdxIJ02AAA')
+	request = requests.get(url).json()
+	return request['output']
+
 def decide(text):
 	likeness = isLike(['what', 'time'], text)
 	if (likeness >= 8.0):
@@ -287,7 +296,7 @@ def decide(text):
 	if (likeness >= 8.0):
 		return news(text)
 
-	return 'cleverbot'
+	return cleverbot(text)
 
 def tts(output):
 
