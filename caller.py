@@ -139,16 +139,61 @@ def isLike(keywords, text): #keywords is an ORDERED array of strings, input is t
 
 	return likeness
 
+def news_source_find(given_source):
+	given_source = given_source.lower()
+	given_source = given_source.split(' ')
+	num = len(given_source)
+	source_index = ['abc-news', 'abc-news-au', 'aftenposten', 'al-jazeera-english', 'ansa', 'argaam', 'ars-technica', 'ary-news', 'associated-press', 'australian-financial-review', 'axios', 'bbc-news', 'bbc-sport', 'bild', 'blasting-news-br', 'bleacher-report', 'bloomberg', 'breitbart-news', 'buisness-insider', 'business-insider-uk', 'buzzfeed', 'cbc-news', 'cbs-news', 'cnbc', 'cnn', 'cnn-es', 'crypto-coins-news', 'daily-mail', 'der-tagesspiegel', 'die-ziet', 'el-mundo', 'engadget', 'entertainment-weekly', 'espn', 'espn-cric-info', 'financial-post', 'financial-times', 'focus', 'footbal-italia', 'fortune', 'four-four-two', 'fox-news', 'fox-sports', 'globo', 'google-news', 'google-news-ar', 'google-news-au', 'google-news-br', 'google-news-ca', 'google-news-fr', 'google-news-in', 'google-news-is', 'google-news-it', 'google-news-ru', 'google-news-sa', 'google-news-uk', 'goteborgs-posten', 'gruenderszene', 'hacker-news', 'handelsblatt', 'ign', 'il-sole-24-ore', 'independent', 'infobae', 'info-money', 'la-gaceta', 'la-nacion', 'la-repubblica', 'le-monde', 'lenta', 'lequipe', 'les-echos', 'liberation', 'marca', 'mashable', 'medical-news-today', 'metro', 'mirror', 'msnbc', 'mtv-news', 'mtv-news-uk', 'national-geographic', 'nbc-news', 'news24', 'new-scientist', 'news-com-au', 'newsweek', 'new-york-magazine', 'next-big-future', 'nfl-news', 'nhl-news', 'nrk', 'politico', 'polygon', 'rbc', 'recode', 'reddit-r-all', 'reuterse', 'rt', 'rte', 'rtl-nieuws', 'sabq', 'spiegel-online', 'svenska-dagbladet', 't3n', 'talksport', 'techcrunch', 'techcrunch-cn', 'techradar', 'the-economist', 'the-globe-and-mail', 'the-guardian-au', 'the-guardian-uk', 'the-hill', 'the-hindu', 'the-huffington-post', 'the-irish-times', 'the-lad-bible', 'the-new-york-times', 'the-next-web', 'the-sport-bible', 'the-telegraph', 'the-times-of-india', 'the-verge', 'the-wall-street-journal', 'the-washington-post', 'time', 'usa-today', 'vice-news', 'wired', 'wired-de', 'wirtschafts-woche', 'xinhua-net', 'ynet']
+	source_index_searchable = []
+	for source in source_index:
+		source_index_searchable.append(source.replace('-', ' '))
+
+	found_arr = []
+	i = 0
+	for name_tag in given_source:
+		current_arr = []
+		for source_s in source_index_searchable:
+			if (source_s.find(name_tag.lower()) != -1):
+				current_arr.append(source_s)
+		found_arr.append(current_arr)
+		i += 1
+
+	#now we need to find the highest frequency source, or return the default bbc-news
+	if (num == 1):
+		if (len(found_arr[0]) == 0):
+			#no sources found
+			return ['BBC', 'bbc-news']
+		else:
+			#the first one will do
+			source_name = found_arr[0][0]
+			return [source_name, source_index[source_index_searchable.index(source_name)]]
+	elif (num == 2):
+		common = list(set(found_arr[0]).intersection(found_arr[1]))
+		print(found_arr[0])
+		print(found_arr[1])
+		print(common)
+		if (len(common) == 0):
+			return ['BBC', 'bbc-news']
+		else:
+			source_name = common[0]
+			return [source_name, source_index[source_index_searchable.index(source_name)]]
+	elif (num == 3):
+		common = list(set(found_arr[0]).intersection(found_arr[1]))
+		common = list(set(common).intersection(found_arr[2]))
+		if (len(common) == 0):
+			return ['BBC', 'bbc-news']
+		else:
+			source_name = common[0]
+			return [source_name, source_index[source_index_searchable.index(source_name)]]
+	else:
+		return ['BBC', 'bbc-news']
+
+
 def news(text):
 	text = text.translate(None, string.punctuation)
 	text = text.split(" ")
 	for word in text:
 		word = word.lower
-
-	source_index = ['abc-news', 'abc-news-au', 'aftenposten', 'al-jazeera-english', 'ansa', 'argaam', 'ars-technica', 'ary-news', 'associated-press', 'australian-financial-review', 'axios', 'bbc-news', 'bbc-sport', 'bild', 'blasting-news-br', 'bleacher-report', 'bloomberg', 'breitbart-news', 'buisness-insider', 'business-insider-uk', 'buzzfeed', 'cbc-news', 'cbs-news', 'cnbc', 'cnn', 'cnn-es', 'crypto-coins-news', 'daily-mail', 'der-tagesspiegel', 'die-ziet', 'el-mundo', 'engadget', 'entertainment-weekly', 'espn', 'espn-cric-info', 'financial-post', 'financial-times', 'focus', 'footbal-italia', 'fortune', 'four-four-two', 'fox-news', 'fox-sports', 'globo', 'google-news', 'google-news-ar', 'google-news-au', 'google-news-br', 'google-news-ca', 'google-news-fr', 'google-news-in', 'google-news-is', 'google-news-it', 'google-news-ru', 'google-news-sa', 'google-news-uk', 'goteborgs-posten', 'gruenderszene', 'hacker-news', 'handelsblatt', 'ign', 'il-sole-24-ore', 'independent', 'infobae', 'info-money', 'la-gaceta', 'la-nacion', 'la-repubblica', 'le-monde', 'lenta', 'lequipe', 'les-echos', 'liberation', 'marca', 'mashable', 'medical-news-today', 'metro', 'mirror', 'msnbc', 'mtv-news', 'mtv-news-uk', 'national-geographic', 'nbc-news', 'news24', 'new-scientist', 'news-com-au', 'newsweek', 'new-york-magazine', 'next-big-future', 'nfl-news', 'nhl-news', 'nrk', 'politico', 'polygon', 'rbc', 'recode', 'reddit-r-all', 'reuterse', 'rt', 'rte', 'rtl-nieuws', 'sabq', 'spiegel-online', 'svenska-dagbladet', 't3n', 'talksport', 'techcrunch', 'techcrunch-cn', 'techradar', 'the-economist', 'the-globe-and-mail', 'the-guardian-au', 'the-guardian-uk', 'the-hill', 'the-hindu', 'the-huffington-post', 'the-irish-times', 'the-lad-bible', 'the-new-york-times', 'the-next-web', 'the-sport-bible', 'the-telegraph', 'the-times-of-india', 'the-verge', 'the-wall-street-journal', 'the-washington-post', 'time', 'usa-today', 'vice-news', 'wired', 'wired-de', 'wirtschafts-woche', 'xinhua-net', 'ynet']
-	source_index_searchable = []
-	for source in source_index:
-		source_index_searchable.append(source.replace('-', ' '))
 	
 	source_tag = 'bbc-news'
 	news_key = '379dd265f19d4465ae7a77cb30c2684f'
@@ -175,19 +220,18 @@ def news(text):
 				if (i != tpc_index):
 					source = ''
 					while (i < tpc_index):
-						source += text[i]
+						source += text[i]+' '
 						i += 1
-					#check source is real
-					for source_s in source_index_searchable:
-						if (source_s.find(source.lower()) != -1):
-							source_tag = source_index[source_index_searchable.index(source_s)]
-							break
+					source = source[:-1]
+					source_result = news_source_find(source)
+					source_tag = source_result[1]
 				i = tpc_index + 1
 				topic = ''
 				if (i != len(text)):
 					while (i < len(text)):
-						topic += text[i]
+						topic += text[i]+' '
 						i += 1
+					topic = topic[:-1]
 					q = '&q='+topic
 
 			else: #news on __ from __
@@ -195,20 +239,19 @@ def news(text):
 				i = tpc_index + 1
 				if (i != src_index):
 					while (i < src_index):
-						topic += text[i]
+						topic += text[i]+' '
 						i += 1
+					topic = topic[:-1]
 					q = '&q='+topic
 				i = src_index + 1
 				if (i != len(text)):
 					source = ''
 					while (i < len(text)):
-						source += text[i]
+						source += text[i]+' '
 						i += 1
-				#check source is real
-				for source_s in source_index_searchable:
-					if (source_s.find(source.lower()) != -1):
-						source_tag = source_index[source_index_searchable.index(source_s)]
-						break
+					source = source[:-1]
+					source_result = news_source_find(source)
+					source_tag = source_result[1]
 
 		else:
 			#just source
@@ -221,13 +264,11 @@ def news(text):
 			if (i != len(text)):
 				source = ''
 				while (i < len(text)):
-					source += text[i]
+					source += text[i]+' '
 					i += 1
-				#check source is real
-				for source_s in source_index_searchable:
-					if (source_s.find(source.lower()) != -1):
-						source_tag = source_index[source_index_searchable.index(source_s)]
-						break
+				source = source[:-1]
+				source_result = news_source_find(source)
+				source_tag = source_result[1]
 
 	elif ('on' in text or 'about' in text):
 		#just topic
@@ -241,8 +282,9 @@ def news(text):
 		i = index+1
 		if (i != len(text)):
 			while (i < len(text)):
-				topic += text[i]
+				topic += text[i]+' '
 				i += 1
+			topic = topic[:-1]
 			q += '&q='+topic
 
 
