@@ -174,7 +174,7 @@ def news(text):
 				i = src_index + 1
 				if (i != tpc_index):
 					source = ''
-					while (i < tpc_index-1):
+					while (i < tpc_index):
 						source += text[i]
 						i += 1
 					#check source is real
@@ -194,7 +194,7 @@ def news(text):
 				topic = ''
 				i = tpc_index + 1
 				if (i != src_index):
-					while (i < tpc_index-1):
+					while (i < src_index):
 						topic += text[i]
 						i += 1
 					q = '&q='+topic
