@@ -324,6 +324,66 @@ def news(text):
 
 	return articles
 
+
+def reminder(text):
+	text = text.translate(None, string.punctuation)
+	text = text.split(" ")
+	for word in text:
+		word = word.lower
+
+	if ('reminder' in text):
+		start = text.index('reminder')
+	elif ('remind' in text):
+		start = text.index('remind')
+	elif ('note' in text):
+		start = text.index('note')
+	else:
+		start = 0
+
+	i = start+1
+	note_start = 0
+	while (i < len(text)):
+		if (PyDictionary.meaning(text[i]) != None and next(iter(PyDictionary.meaning(text[i]))) == 'Verb'):
+			note_start = i
+			break
+		i += 1
+
+	i = note_start
+	note_str = ''
+	while (i < len(text)):
+		note_str += text[i]+' '
+		i += 1
+	note_str = note_str[:-1]
+
+	filename = 'reminders.txt'
+	if (os.path.exists(filename)):
+		mode = 'a'
+	else:
+		mode = 'w'
+
+	file = open(filename, mode)
+	file.write('Note: '+note_str+'\n')
+	file.close()
+
+	return "Ok, I've written a reminder that says: "+note_str+"."
+
+
+def read_reminders(text):
+	output = 'Your reminders are: '
+	with open('reminders.txt') as file:
+		content = file.readlines()
+	content = [x.strip() for x in content]
+	for line in content:
+		output += line[:6] + ", "
+	output += "."
+	return output
+
+
+def del_reminders(text):
+	os.remove('reminders.txt')
+	return "Ok, I've cleared your reminders."
+
+
 def cleverbot(text):
 	API_KEY = 'CC5sziu110l1338RfLM-CPsPKHg'
 	url = ('http://www.cleverbot.com/getreply?key='+API_KEY+'&input='+text+'&cs=76nxdxIJ02AAA')
@@ -337,6 +397,17 @@ def decide(text):
 	likeness = isLike(['news'], text)
 	if (likeness >= 8.0):
 		return news(text)
+	likeness = isLike(['remind', 'me'], text)
+	likeness2 = isLike(['reminder'], text)
+	likeness3 = isLike(['note'], text)
+	if (likeness >= 8.0 or likeness2 >= 8.0 or likeness3 >= 8.0):
+		return reminder(text)
+	likeness = isLike(['read', 'reminder'], text)
+	if (likeness = >= 8.0):
+		return read_reminders(text)
+	likeness = isLike(['delete', 'reminder'], text)
+	if (likeness >= 8.0):
+		return del_reminders(text)
 
 	return cleverbot(text)
 
