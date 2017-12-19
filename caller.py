@@ -4,6 +4,7 @@ from google.cloud.speech import enums
 from google.cloud.speech import types
 from google.oauth2 import service_account
 from PyDictionary import PyDictionary
+from coinbase.wallet.client import Client
 from gtts import gTTS
 import os
 import sys
@@ -14,6 +15,7 @@ import string
 import time
 import requests
 import warnings
+import decimal
 
 warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
@@ -84,11 +86,12 @@ def get_response(response):
 def isLike(keywords, text): #keywords is an ORDERED array of strings, input is the text input of the user
 	likeness = 0
 	text = text.translate(None, string.punctuation)
+	text = text.lower()
 	text = text.split(" ")
-	for word in text:
-		word = word.lower
+	i = 0
 	for word in keywords:
-		word = word.lower
+		i+=1
+		text[i] = word.lower
 
 	num_contains = 0
 	included_arr = []
@@ -191,10 +194,9 @@ def news_source_find(given_source):
 
 def news(text):
 	text = text.translate(None, string.punctuation)
+	text = text.lower()
 	text = text.split(" ")
-	for word in text:
-		word = word.lower
-	
+
 	source_tag = 'bbc-news'
 	news_key = '379dd265f19d4465ae7a77cb30c2684f'
 	source = 'bbc news'
@@ -327,9 +329,8 @@ def news(text):
 
 def reminder(text):
 	text = text.translate(None, string.punctuation)
+	text = text.lower()
 	text = text.split(" ")
-	for word in text:
-		word = word.lower
 
 	if ('reminder' in text):
 		start = text.index('reminder')
@@ -384,11 +385,48 @@ def del_reminders(text):
 	return "Ok, I've cleared your reminders."
 
 
+def weather(text):
+	text = text.translate(None, string.punctuation)
+	text = text.lower()
+	text = text.split(" ")
+
+	return 'not working yet'
+
+
+def bitcoin_wallet(text):
+	text = text.translate(None, string.punctuation)
+	text = text.lower()
+	text = text.split(" ")
+	output = ''
+
+	#check the amount of bitcoins in your wallet
+	client = Client('QMxY1zh5et9LBH7X', '6yOdOFPvWAnc4qcElxHTHSJRqglgHNf3', api_version='2017-08-07')
+	currency_code = 'USD'
+
+	accounts = client.get_accounts()
+	for account in accounts.data:
+		balance = account.balance
+		price = client.get_spot_price(currency=currency_code)
+		print(price.amount)
+		if (balance.currency == 'BTC'):
+			currency_name = 'bitcoins'
+		elif (balance.currency == 'ETH'):
+			currency_name = 'ethereum'
+		else:
+			currency_name = 'litecoins'
+		if (balance.amount == 0):
+			balance.amount = 0
+		output += account.name+' has '+balance.amount+' '+currency_name+', valued at '+str(round(decimal.Decimal(balance.amount)*decimal.Decimal(price.amount), 2))+' '+currency_code+'. '
+
+	return output
+
+
 def cleverbot(text):
 	API_KEY = 'CC5sziu110l1338RfLM-CPsPKHg'
 	url = ('http://www.cleverbot.com/getreply?key='+API_KEY+'&input='+text+'&cs=76nxdxIJ02AAA')
 	request = requests.get(url).json()
 	return request['output']
+
 
 def decide(text):
 	likeness = isLike(['what', 'time'], text)
@@ -398,17 +436,27 @@ def decide(text):
 	if (likeness >= 8.0):
 		return news(text)
 	likeness = isLike(['remind', 'me'], text)
-	likeness2 = isLike(['reminder'], text)
-	likeness3 = isLike(['note'], text)
-	if (likeness >= 8.0 or likeness2 >= 8.0 or likeness3 >= 8.0):
+	likeness1 = isLike(['reminder'], text)
+	likeness2 = isLike(['note'], text)
+	if (likeness >= 8.0 or likeness1 >= 8.0 or likeness2 >= 8.0):
 		return reminder(text)
 	likeness = isLike(['read', 'reminder'], text)
-	if (likeness = >= 8.0):
+	if (likeness >= 8.0):
 		return read_reminders(text)
 	likeness = isLike(['delete', 'reminder'], text)
 	if (likeness >= 8.0):
 		return del_reminders(text)
-
+	likeness = isLike(['weather'], text)
+	likeness1 = isLike(['temperature'], text)
+	if (likeness >= 8.0 or likeness1 >= 8.0):
+		return weather(text)
+	likeness = isLike(['bitcoin', 'wallet'], text)
+	likeness1 = isLike(['bitcoin', 'portfolio'], text)
+	if (likeness >= 8.0 or likeness1 >= 8.0):
+		return bitcoin_wallet(text)
+	print(likeness)
+	print('\n')
+	print(likeness1)
 	return cleverbot(text)
 
 def tts(output):
@@ -424,12 +472,15 @@ def main():
 
 	while(1):
 		# Step 1: Get audio input
-		record()
+		#record()
 		# Step 2: Call transcribe_file function to make API request
-		response = transcribe_file(filename)
+		#response = transcribe_file(filename)
 
 		# Step 3: Read text response
-		text = str(get_response(response))
+		#text = str(get_response(response))
+
+		text = raw_input()
+
 		print(text)
 
 		# Step 4: Decide on action and response
