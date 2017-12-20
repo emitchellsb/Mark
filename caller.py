@@ -16,6 +16,7 @@ import time
 import requests
 import warnings
 import decimal
+import json
 
 warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
@@ -401,13 +402,14 @@ def bitcoin_wallet(text):
 
 	#check the amount of bitcoins in your wallet
 	client = Client('QMxY1zh5et9LBH7X', '6yOdOFPvWAnc4qcElxHTHSJRqglgHNf3', api_version='2017-08-07')
-	currency_code = 'USD'
+	currency_code = 'AUD'
 
 	accounts = client.get_accounts()
 	for account in accounts.data:
 		balance = account.balance
-		price = client.get_spot_price(currency=currency_code)
-		print(price.amount)
+		exchange_rates = client.get_exchange_rates(currency=balance.currency)
+		print(exchange_rates)
+		price = decimal.Decimal(exchange_rates['rates']['AUD'])*decimal.Decimal(balance.amount)
 		if (balance.currency == 'BTC'):
 			currency_name = 'bitcoins'
 		elif (balance.currency == 'ETH'):
@@ -416,7 +418,7 @@ def bitcoin_wallet(text):
 			currency_name = 'litecoins'
 		if (balance.amount == 0):
 			balance.amount = 0
-		output += account.name+' has '+balance.amount+' '+currency_name+', valued at '+str(round(decimal.Decimal(balance.amount)*decimal.Decimal(price.amount), 2))+' '+currency_code+'. '
+		output += account.name+' has '+balance.amount+' '+currency_name+', valued at '+str(round(decimal.Decimal(price), 2))+' '+currency_code+'. '
 
 	return output
 
